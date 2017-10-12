@@ -1,10 +1,14 @@
 package com.study.observer.demo.client;
 
+import com.google.common.collect.Lists;
 import com.study.observer.demo.subject.AbstractSubject;
 import com.study.observer.demo.subject.ObservedHath;
 import com.study.observer.demo.watcher.SeniorWatcher;
 import com.study.observer.demo.watcher.VerneyWatcher;
 import com.study.observer.demo.watcher.Watcher;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Author: Jax
@@ -27,6 +31,14 @@ public class TestClient {
         System.out.println("小民被蜥派暗中观察...");
 
         xiaoMin.readPoetry();
+
+
+        ArrayList<Watcher> list= Lists.newArrayList();
+        list.add(ha);
+        ArrayList<Watcher> clone = (ArrayList<Watcher>)list.clone();
+
+        System.out.println(list.get(0) == clone.get(0));
+
 
     }
 }

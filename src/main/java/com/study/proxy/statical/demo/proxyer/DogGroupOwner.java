@@ -2,6 +2,7 @@ package com.study.proxy.statical.demo.proxyer;
 
 import com.study.proxy.statical.demo.behavior.DriveCar;
 import com.study.proxy.statical.demo.principal.OldDriver;
+import org.springframework.util.ClassUtils;
 
 /**
  * @Author: Jax
