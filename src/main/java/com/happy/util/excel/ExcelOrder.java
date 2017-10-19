@@ -25,10 +25,7 @@ public class ExcelOrder<E> {
     private List list;
 
     private String fileName;
-
-    /**
-     * 文件路径 文件全路径为 filePath + fileName + type.code()
-     */
+    
     private String filePath;
 
 

@@ -75,8 +75,11 @@ public class AsciiPic {
      */
     public static void main(final String[] args) {
 
-        AsciiPic asciiPic = new AsciiPic();
-        asciiPic.mapConvert("F:\\weidiao.jpg");
+        char[] str = {'@','#','!',',','.'};
+        AsciiPic asciiPic = new AsciiPic(str);
+
+
+        asciiPic.mapConvert("F:\\elder1.jpg");
 
         System.out.println(asciiPic.imgString);
 
