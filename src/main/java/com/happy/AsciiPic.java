@@ -76,7 +76,7 @@ public class AsciiPic {
     public static void main(final String[] args) {
 
         AsciiPic asciiPic = new AsciiPic();
-        asciiPic.mapConvert("F:\\elder1.jpg");
+        asciiPic.mapConvert("F:\\weidiao.jpg");
 
         System.out.println(asciiPic.imgString);
 
