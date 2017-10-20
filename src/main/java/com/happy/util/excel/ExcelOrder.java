@@ -25,7 +25,7 @@ public class ExcelOrder<E> {
     private List list;
 
     private String fileName;
-    
+
     private String filePath;
 
 
