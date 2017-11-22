@@ -2,6 +2,7 @@ package com.example.demo.web.controller;
 
 
 import com.example.demo.web.anotation.TestAno;
+import com.google.common.collect.Lists;
 import com.happy.util.excel.ExcelOrder;
 import com.happy.util.excel.ExcelUtil;
 import com.happy.entity.Student;
@@ -15,6 +16,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @Author: Jax
@@ -51,6 +53,31 @@ public class HelloController {
 //    @TestAno
     public String think(){
         return "I'm thinking...";
+    }
+
+
+    public static void main(String[] args) {
+        List<Optional<Student>> students = Lists.newArrayList();
+
+        Student student = new Student("小民");
+        Student student1 = new Student("小平");
+        Student student2 = new Student("小来");
+
+        students.add(Optional.of(student));
+        students.add(Optional.of(student1));
+        students.add(Optional.of(student2));
+        students.add(Optional.ofNullable(null));
+
+
+
+
+        students.forEach(Optional::get);
+
+
+        students.stream().filter(optional -> optional.isPresent()).forEach(optional -> System.out
+                .println(optional.get().getName()));
+
+//        students.forEach(optional -> optional.orElseThrow(NullPointerException::new ));
     }
 
 }

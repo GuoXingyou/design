@@ -16,6 +16,10 @@ import java.util.Date;
 @Setter
 public class Student {
 
+
+
+
+
     @Excel(index = 0, name = "ID")
     private int id;
 
@@ -36,5 +40,13 @@ public class Student {
     }
 
     public Student() {
+    }
+
+    public Student(String name) {
+        this.name = name;
+    }
+
+    public static void main(String[] args) {
+        Boolean.valueOf(true);
     }
 }
