@@ -64,7 +64,7 @@ public class Singleton{
  }
 ````
 > 这种写法主要是懒加载，但是多线程不能正常使用
-* 懒汉，线程安全
+* 懒汉，线程不安全
 ````
 public class Singleton {  
     private static Singleton instance;  
