@@ -174,6 +174,71 @@ public class Util{
 > 这种做法的副作用就是不能被子类化。
 ********************************************
 ###5.避免创建不必要的对象
+####5.1重用不可变量
 > 通常使用静态工厂方法是优于构造器的，例如Boolean.valueOf(String)是优于Boolean(String)
 的，构造器在每次被调用的时候会创建一个新的对象，静态工厂方法是不会这么做的（重用不可变或者已知
 不会修改的对象）。
+####5.2重用一直不可变量
+````
+public class Person{
+    private final Date birttday;
+    public boolean isBabyBoomer(){
+        Calendar gmtCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        gmtCal.set(1946,Calendar.JANUARY,1,0,0,0);
+        Date boomStart = gmtCal.getTime();
+        gmtCal.set(1965,Calendar.JANUARY,1,0,0,0);
+        Date boomEnd = gmtCal.getTime();
+        
+        return bithday.compareTo(boomStart) >= 0 && birthday.compareTo(boomEnd) < 0;
+    }
+}
+````
+> 上面的代码主要是检验这个人是否是1946年至1965年（生育高峰期）出生的。isBabyBoomer每次被调用都会
+创建一个Calendar、一个TimeZone和两个Date的实例，只写都是不必要的。
+````
+public class Person{
+    private final Date birthday;
+    private static final Date BOOM_START;
+    private static final Date BOOM_END;
+    
+    static{
+        Calendar gmtCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        gmtCal.set(1946,Calendar.JANUARY,1,0,0,0);
+        BOOM_START = gmtCal.getTime();
+        gmtCal.set(1965,Calendar.JANUARY,1,0,0,0);
+        BOOM_END = gmtCal.getTime();
+    }
+    
+    public boolean isBabyBoomer(){
+        return bithday.compareTo(BOOM_START) >= 0 && birthday.compareTo(BOOM_END) < 0;
+    }
+}
+````
+> 改进后的代码只会在初始化的时候创建Calendar、TimeZone和Date。如果isBabyBoomer被频繁调用，这种
+方法就会显著提升性能。而且BOOM_START和BOOM_END变为了final静态域，读者知道这两个日期被当做常量处理，
+提高了代码的可读性。~~但是，这种优化带来的优化并不是总是那么明显，因为Calendar实例的代价比较昂贵。~~
+####5.3适配器（adapter）
+> 适配器把功能委托给了一个后备对象（backing object），从而为后备对象可替代接口。由于适配器除了后备对
+象之外，没有其他的状态信息，所以针对某个给定对象的特定适配器而言，它不需要创建多个适配器实例。例如：Map
+的keySet方法的Set视图（key），每次调用实际上返回的是同一个实例。因为是由同一个Map支撑，所以即使Set发
+生变化，其余返回对象的功能也会对等的随之变化。
+####5.4自动装箱（autoboxing）
+> 自动装箱和拆箱使得基本类型和装箱基本类型之间的差距模糊起来，但是并没有完全消除。
+````
+public static void main(String[] args){
+    Long sum = 0L;
+    for(long i = 0; i < Integer.MAX_VALUE; i++){
+        sum += i;
+    }
+    System.out.println(sum);
+}
+````
+> 上面的程序没有问题，但是执行速度比实际慢了一些。变量sum被申明为Long而不是long，意味着程序需要多构造大
+约2^31个多余的实例（每次往Long sum中增加long时构建一个）。将sun申明改为long，运行时间会明显减少：**_优先
+使用基本类型而不是装箱基本类型，注意无意识的自动装箱。_**
+####5.5不要因为上面的举例而错误的以为对象的创建和回收代价很昂贵，小对象的创建和回收非常廉价
+> 重用对象可能存在潜在的错误和安全漏洞，善用保护性拷贝（defensive copying），而不必要的创建对象会影响程序
+风格和性能。
+***********************************************
+###6.消除过期对象的引用
+
