@@ -27,7 +27,6 @@ public class Example4 {
         private int b;
         private int c;
 
-
         public Builder A(int a){this.a = a;return this;}
         public Builder B(int b){this.b = b;return this;}
         public Builder C(int c){this.c = c;return this;}

@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class DemoApplication {
 
 
-
 	public static void main(String[] args) throws InterruptedException {
 
 		System.out.println("虽然我们无法回到从前,但该有的梦想还是得继续!你们也是这样想的吧?");

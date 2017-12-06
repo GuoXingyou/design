@@ -241,4 +241,133 @@ public static void main(String[] args){
 风格和性能。
 ***********************************************
 ###6.消除过期对象的引用
+````
+public class Stack{
+    private Object[] elements;
+    private int size = 0;
+    private static final int DEFAULT_INITIAL_CAPACITY = 16;
+    
+    public Stack(){
+        elements = new Object[DEFAULT_INITIAL_CAPACITY];
+    }
+    
+    public void push(Object e){
+        ensureCapacity();
+        elements[size++] = e;
+    }
+    
+    public Object pop(){
+        if(0 == size)
+            throw new EmptyStackException();
+        return elements[--size];
+    }
+    
+    /**
+    * Ensure space for at least one more element, roughly doubling the capacity each time
+    * the array needs to grow.(确保空间至少有一个元素，每次阵列需要增长一杯容量)
+    **/
+    private void ensureCapacity(){
+        if(elements.length == size)
+            elements = Array.copyOf(elements, 2 * size + 1);
+    }
+}
+````
+> 如果一个栈先是增长，然后再收缩，那么，从栈中弹出来的对象是不会被当做垃圾回收的，即是使用栈的程序不再使用
+这些对象，原因是栈内部对这些过期引用（obsolete reference）的维护。过期引用，指的是永远不会再被解除的引用。
+上面的代码里面，elements中下标小于size的元素都是属于活动部分（active portion）之外的过期引用。修复这类问
+题方法很简单：一旦对象引用过期，清空这些引用即可。对于上面代码做出以下修改：
+````
+public Object pop(){
+    if(0 == size)
+        throw new EmptyStackException();
+    Object result = elements[--size];
+    elements[size] = null;//Eliminate obsolete reference （消除过期引用）
+    return result;
+}
+````
+> 清空过期引用的另一个好处在于，如果他们又被错误地接触引用，程序会跑出NPE而不是错误地执行下去。愈早发现程序的
+错误总是好的。但是我们不需要总是如此小心翼翼，清空对象引用只是一种例外而不应该是一种规范。消除过期引用最好的方
+式是让包含该引用的变量结束其生命周期，如果你是在最紧凑的作用域范围内定义的每一个变量，这种情形就会自然而然的发
+生。
+> * 通常，Stack类自己管理内存（manage its own memory），存储池（storage pool）包含了elements数组（对象引用单
+元而非对象本身）的元素。活动区域的元素是已分配的（allocated），而数组其余元素则是自由的（free）。但是垃圾回收
+器是不知道的；对它来说，elements数组中所有引用都是同等有效。只有开发者自己知道非活动部分是没用的。总的来说，只
+要类自己管理内存，我们就应该警惕内存泄露的问题。
+
+> 另一个常见来源是缓存。我们很容易以往缓存中的对象引用，从而使得它不再使用之后很长一段时间任然留在缓存中。
+> * 如果需要实现这样的缓存：只要缓存之外有对某个项的键的引用，该项就有意义，那么可以用WeakHashMap代表缓存；当
+缓存中的项过期后，它们会自动被删除。注意的是，只有当所要的缓存项生命周期是由外部引用觉得而不是值决定时，WeakHashMap
+才有作用。
+> * 更常见的是，缓存项的生命周期是否有意义并不容易确定。这种情况下，应该时不时地清楚没用的项。可以是一个后台线
+程来完成，或者添加新缓存时处理。LinkedHashMap利用它removeEldestEntry可以很容易实现后一种方案。对于更加复杂的，
+必须使用java.lang.ref。
+
+> 第三种情况是监听器和其他回调。例如实现一个API，客户端在这个API中注册回调，却没有显示地取消注册，如果不采取某
+些动作，它们就会积聚。解决方法可以是只保存它们的弱引用（weak reference），例如只将它们存为WeakHashMap中的键。
+
+> 内存泄露一般不会有明显的失败，可能会在一个系统潜伏多年，只有通过检查代码或者借助Heap剖析工具（Heap Profiler）
+才能找到，因此，能在发生之前预测并阻止是坠吼的。
+***********************************************
+###7.避免使用终结方法（finalizer）
+> 终结方法呐，就不可预料了，也很危险，一般情况是不必要的。使用可能会导致行为不稳定，降低性能以及移植性问题。
+ *  终结方法不能保证会被及时执行，而且JVM有延迟终结方法的机制，很可能会造成程序错误地执行。及时执行终结方
+     法是垃圾回收算法的一个主要功能，这种算法在不同的JVM中实现大相径庭，一个程序在你的JVM上能正确执行，可能
+     到了别人那就会出问题。很少见的情况下，为类提供终结方法，可能会随意地延迟其实例的回收过程，即延迟终结过
+     程。
+ *  终结方法的执行呐，也要按照基本法，按照Java的法去产生执行。也就是说Java语言规范不仅不保证终结方法执行，
+     而且根本不保证他们会被执行。因此不能依赖终结方法来更新重要的持久态。即使System.gc和System.runFinalization
+     这两个方法也不保证终结方法一定被执行。
+ *  如果未被捕获的异常在终结过程中被抛出，那么异常可以被忽略，同时终结过程也会终止，异常会使对象处于破坏的
+     状态（a corrupt state）,一旦另一个线程企图使用破坏的对象，就会发生不可预料的行为。在终结方法中的异常不
+     会打印栈，甚至没有警告。
+ *  坠痛苦的是，就是终结方法的性能损失非常严重（Severe），创建和销毁对象的时候一下子就......而且这个效率，
+     efficiency。
+   
+> 正确终止的知识呢，我们还是要学习一个，就是这个显示终结啊。Java有个InputStream、OutputStream和java.sql.Connection
+的close方法，啊，不知道比你们高到哪里去了！
+  *  显示终结方法通常是客户端在每个实例不再有用的时候调用这个方法，而且，该实例必须记录自身终结的状态在一个
+  私有域，一旦对象是在终止后调用就检查私有域，并抛出一个IllegalStateException的大新闻。
+  *  为确保及时执行，显示终结一般是和try...finally结合使用。
+  
+> 终结方法的主要就是两个事：
+   *  1、当对象的所有者忘记调用前面段落中建议调用的显示终止方法时，可以充当一层安全网（safe net）。尽管不能及时
+   调用，但是好过不调用。一旦在终结方法中发现资源仍未关闭，则应采取日志形式给予警告处分。
+   *  2、本地对等体（native peer）是一个本地对象，普通对象通过本地方法（native method）委托给本地的一个对象。当
+   他的Java对等体被回收的时候，他并不会被回收，因此如果本地对等体拥有必须被及时关闭释放的资源时就需要一个显示终结
+   方法。
+   
+> 终结方法链（finalizer chaining）不会被自动执行，子类覆盖了超类的finalizer，就必须手动执行超类的finalizer，在try
+中调用子类的finalizer，在finally中调用超类的finalizer。避免忘记这个操作，可以为每个被终结对象创建一个附加对象，把终
+结方法放在一个匿名类中，作用就是终结它的外围实例（enclosing instance）。该匿名类的单个实例就是终结方法守护者（finalizer 
+guardian），外围类的每一个实例都会创建一个这样的守卫者。外围实例在它的私有实例域中保存着一个对其终结方法守卫者的唯一
+引用，因此守卫者和外围实例可同时启动终结。
+````
+public class Foo{
+    private final Object finalizerGuardian = new Object(){
+        @Override
+        protected void finalize() throw Throwable(){
+            ...//Finalize outer Foo object
+        }
+    };
+}
+````
+> 公有类Foo并没有终结方法，所以子类是否调用super.finalize不重要了。对于每一个带终结方法的非final公有类，都应该考虑使
+用这种方式。
+> Generally speaking，除非是safe net（用了记得记录非法用法），或者本地资源，否则尽量不要使用finalizer。即使用了，记得
+super.finalize；如果需要结合公有非final类，考虑finalizer guardian。
+***************************************
+###8.覆盖equals时请遵守通用约定
+* 类的每个实例本质是唯一的。eg：Thread。
+* 不关心类是否提供了逻辑相等（logical equality）的测试功能。eg：java.util.Random。
+* 超类已经覆盖了equals，超类的行为对于子类同样适用。eg：大部分Set继承AbstractSet。
+* 类是私有的或是包级私有的，可以确保它的equals永远不会被调用。
+> JavaSE6中equals的规范，equals实现了等价关系（equivalence relation）：
+* 自反性，对于非null的引用值x，x.equals(x) == true;
+* 对称性，对于非null的引用值x和y，x.equals(y) == y.equals(x) == true;
+* 传递性，对于非null的引用值x、y、z，if（x.equals(y) == true && y.equals(z) == true）x.equals(z) == true;
+* 一致性，对于非null的引用值x和y，只要没有修改对象中的任何信息，无论多少次x.equals(y)都必须一致地返回true或者一致地返回false;
+* 非空性，对于非null的引用值x，x.equals(null) == false;
+  
+
+
 
