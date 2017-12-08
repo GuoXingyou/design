@@ -22,7 +22,7 @@ API相比导出32
       return new HashMap<K, V>();
     }
 ````
-> * 构成基于接口的框架，参考eg1代码，以服务提供者框架（Service Provider Framework）为例讲解，该框架的代表是JDBC API
+> * 构成基于接口的框架，参考**_eg1代码_**，以服务提供者框架（Service Provider Framework）为例讲解，该框架的代表是JDBC API
 
 [参考链接](http://www.jianshu.com/p/4d7a0cd36a82)
 
@@ -39,7 +39,7 @@ API相比导出32
 现不一致，而且，JavaBean模式阻止了把类做成不可变的可能，就需要为他的线程安全额外付出
 ####Builder模式
 * > builder模式保证了重叠构造器模式那样的安全性的同时也保证了JavaBean模式的可读性，不直接生成对象，让客户端调用必要的参数
-构造一个builder对象，最后通过无参的build方法生成不可变对象，参考eg2代码。
+构造一个builder对象，最后通过无参的build方法生成不可变对象，参考**_eg2代码_**。
 * > builder模式也有自身不足，为了创建对象会先创建一个构建器，增加了开销，虽然实际中可能影响不大，但是某些需要性能的场景下可
 能会带来问题。同时编写构建器比起重叠构造器更加冗长，IDEA搞的自动生成构造器的功能啊，excited！所以只有在参数较多的时候使用，
 但是设计之初最好能考虑清楚，是否字段繁多，因为需要多个参数才添加构建器时，可能会使的代码无法控制，那些过时的构造器和静态工厂
@@ -360,13 +360,56 @@ super.finalize；如果需要结合公有非final类，考虑finalizer guardian�
 * 类的每个实例本质是唯一的。eg：Thread。
 * 不关心类是否提供了逻辑相等（logical equality）的测试功能。eg：java.util.Random。
 * 超类已经覆盖了equals，超类的行为对于子类同样适用。eg：大部分Set继承AbstractSet。
-* 类是私有的或是包级私有的，可以确保它的equals永远不会被调用。
+* 类是私有的或是包级私有的，可以确保它的equals永远不会被调用。+
 > JavaSE6中equals的规范，equals实现了等价关系（equivalence relation）：
 * 自反性，对于非null的引用值x，x.equals(x) == true;
 * 对称性，对于非null的引用值x和y，x.equals(y) == y.equals(x) == true;
 * 传递性，对于非null的引用值x、y、z，if（x.equals(y) == true && y.equals(z) == true）x.equals(z) == true;
 * 一致性，对于非null的引用值x和y，只要没有修改对象中的任何信息，无论多少次x.equals(y)都必须一致地返回true或者一致地返回false;
 * 非空性，对于非null的引用值x，x.equals(null) == false;
+
+> 如果说还有一点什么就是 **_复合优于继承_**！这个对拓展的命运有很大的关系。>高质量实现equals的五可奉告：
+
+     1、使用==检查参数是否为该对象的引用；
+     2、使用instanceof校验参数是否为正确的类型；
+     3、把参数转换为正确的类型；
+     4、对于该类中的每个关键域，检查参数中的域是否与该对象中对应的域匹配（说白了就是比较必要的字段= =！），但是这个比较的顺序啊
+     还有非空判断啊这些很重要，会对方法的性能有影响；
+     5、编写完equals后请检查对称、传递、一致性；
+> 三个代表的告诫：
+
+    1、覆盖equals时总是要覆盖hashCode；
+    2、不要想着让equals智能到考虑得很完美；
+    3、不要把equals声明的Object对象替换为别的类型；
+    
+**************************************************
+###9.重写equals时总要重写hashCode
+> 如果只是重写了equals而没有重写hashCode，就会违背hashCode的通用约定，从而导致该类无法结合所有基于散列的集合一起正常运作，
+例如HashMap，HashTable。
+
+>JavaSE6中的规范：
+* 在应用程序执行期间，只要对象的equals方法的比较操作所用到的信息没被修改，那么对着同一个对象调用多次，返回的hashCode都必须是同一个
+整数。~~在同一个应用程序的多次执行过程中，每次执行所返回的整数可以不一致~~（excuse me？？？）。
+* 如果两个对象的equals比较是相等的，那么他们的hashCode必定是同一个整数。
+* 接上一条，如果两个对象equals不是相等的，他们的hashCode不一定不同，可能任然是同一个整数。但是我们应该知道，给不相等的对象不同的整
+数结果，有可能提高散列表（hash table）的性能。
+
+> 一个好的散列函数倾向于为不相等的对象产生不相等的散列码。同时，对于不可变的类并且散列码计算开销较大的时候，就应该考虑把散列
+码缓存在对象内部，而不是每次请求都重新计算。如果，你觉得这种类型的大多数对象会被用作散列键，就因该创建实例的时候创建散列码。
+否则，可以使用“延迟初始化”散列码，一直到hashCode第一次被调用的时候才初始化，如下：
+````
+private volatile int hashCode;
+@Override public int hashCode(){
+    int result = hashCode;
+    if(0 == result){
+        ...//produce a hashCode by rule
+    }
+    return result;
+}
+````
+> 不要试图从散列码计算中排除掉一个对象的关键部分来提高性能。效果不一定好，还可能导致散列表失效。
+     
+
   
 
 
