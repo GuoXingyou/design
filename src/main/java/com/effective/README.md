@@ -415,7 +415,8 @@ private volatile int hashCode;
 我们使用new的时候，这个new的类可以没有被加载；但是使用newInstance必须保证1、这个类已经被加载；2、这个类已经连接。这两个步骤可以用
 Class.forName达成。可以输newInstance是把new分成两步，先加载，后实例化；同时，newInstance是弱类型，效率低，只能调用无参构造，而new
 是强类型，相对效率高，可以调用任何public构造。
-     
+************************************************
+
 
   
 
