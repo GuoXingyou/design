@@ -155,7 +155,15 @@ public class StreamAPITest {
             //1、找到条件符合的第一个就返回；2、找到任意一个匹配的就返回
             String tag = stringList.stream().filter(s -> s.indexOf("a") > -1).findFirst().get();
             tag = stringList.stream().filter(s -> s.startsWith("j")).findAny().get();
+
+
         }
     }
+
+    /**
+     * 关于Stream的适用场景，网上也有很多比较Stream和for loop的，看得出来，简单场景下，stream因为自身的一些创建及传输
+     * 损耗，效率不会比for loop高，它更适合存在对于集合进行多操作，任务较重，逻辑复杂，需要并发和函数式编程提高代码可
+     * 读性的场景
+     */
 
 }
