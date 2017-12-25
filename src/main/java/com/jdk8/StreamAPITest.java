@@ -22,6 +22,7 @@ public class StreamAPITest {
     private static List<String> stringList = Arrays.asList("hello", "world", "effective", "java", "excited");
 
     public static void main(String[] args) {
+        integerList.forEach(integer -> System.out.println(integer));
     }
 
     /**
