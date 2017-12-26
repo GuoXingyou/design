@@ -15,6 +15,8 @@ import java.util.List;
 public class NewCharacteristic {
 
 
+    //关于JDK7 这篇文章很不错https://www.ibm.com/developerworks/cn/java/j-lo-jdk7-1/
+
 
     public static void main(String[] args) {
         //1、switch支持string
