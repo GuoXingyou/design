@@ -18,8 +18,7 @@
     * 总结：增强java语言初始化局部变量申明的拓展类型推断
     * 目标：
     > 希望通过允许开发者省略不必要的局部变量类型的显示声明，以此减少java代码相关的必要操作
-    来提高java开发体验（增强UX？），同时承诺保持静态语言的安全性。（感觉很难牛逼，想象静态语言部
-    分动态化），例如：
+    来提高java开发体验（增强UX？），同时承诺保持静态语言的安全性。例如：
     ````
         var list = new ArrayList<String>();  // infers ArrayList<String>
         var stream = list.stream();          // infers Stream<String>
@@ -49,9 +48,9 @@
     为每一个显示类型变量提供声明的必要无意中促使开发者使用过于复杂的表达式，这些意义不大的声明语法，对于把复杂
     的链式或是嵌套表达式分成简单的表达式产生了一些阻碍。  
     几乎所有其他流行的静态语言，都已经支持了局部变量推断：C艹（auto），C井（var），Scala（var/val），Go（declaration
-    with : =）,emmm......那么所以java没有所以就成了典范，不按照静态语言的基本法，所以我们要根据......去产生。  
+    with : =）,emmm......那么所以java没有所谓的典范，不按照静态语言的基本法，所以我们要根据......去产生。  
     然后嘛，从7开始集合类开始提供的类型推理（List<String> list = new ArrayList<>();）到8利用lambda形式展开的嵌
-    套拓展推理和链式泛型方法调用，使得很多膜法师，呸，开发人员开始习惯中间类型的推断，真正的粉丝哪怕只是有lambda代码
+    套拓展推理和链式泛型方法调用，使得很多开发人员开始习惯中间类型的推断，真正的粉丝哪怕只是看到lambda代码
     也知道他后面代表的是什么:
     ````
         int maxWeight = blocks.stream()
@@ -59,9 +58,9 @@
                               .mapToInt(Block::getWeight)
                               .max();
     ````
-    > 就算我什么也不说，中间件类型的Stream<Block>和IntStream以及lambda的b规范，没有明确清晰地出现在源代码中；
-    局部变量类型推断也允许在不太紧密的结构化API中产生类似的效果，本地变量的很多用法本质上是chains（链结构），这有
-    助于类型的推断：
+    > 坠吼就是我什么也不说，中间件类型的Stream<Block>和IntStream以及lambda的b规范，没有明确清晰地出现在源代码中
+    我们也知道那代表什么类型；局部变量类型推断也允许在不太紧密的结构化API中产生类似的效果，本地变量的很多用法本质
+    上是chains（链结构），这有助于类型的推断：
     ````
         var path = Paths.get(fileName);
         var bytes = Files.readAllBytes(path);
