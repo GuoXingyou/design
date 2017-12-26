@@ -1,4 +1,4 @@
-package com.jdk7;
+package com.jdk.jdk7;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

@@ -1,6 +1,4 @@
-package com.jdk8;
-
-import com.google.common.collect.Lists;
+package com.jdk.jdk8;
 
 import java.util.Arrays;
 import java.util.List;

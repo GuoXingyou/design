@@ -1,4 +1,4 @@
-package com.jdk8;
+package com.jdk.jdk8;
 
 import com.google.common.collect.Lists;
 

@@ -1,4 +1,4 @@
-package com.jdk8;
+package com.jdk.jdk8;
 
 /**
  * @Author: Jax

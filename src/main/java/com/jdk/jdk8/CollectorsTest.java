@@ -1,4 +1,4 @@
-package com.jdk8;
+package com.jdk.jdk8;
 
 import com.google.common.collect.Lists;
 
@@ -122,8 +122,8 @@ public class CollectorsTest {
     //一般归约
     public static void reduceTest(){
         //相当于代码 double num= 0；for（Human h : humanList）{ num+=h.getAge();}
-        double result = humanList.stream().collect(Collectors.reducing(0,Human::getAge,(integer,
-                                                                               integer2) -> integer + integer2));
+        double result = humanList.stream().collect(Collectors.reducing(0, Human::getAge,(integer,
+                                                                                         integer2) -> integer + integer2));
         System.out.println(result);
     }
 
